@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Focus Session Tracker</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body class="bg-gray-100 text-gray-900">
+    <div class="container mx-auto p-10 flex flex-col items-center justify-center">
+        <div id="startScreen" class="screen active bg-white shadow-md rounded-lg p-6">
+            <h1 class="text-3xl font-bold">Track Your Focus in Real Time</h1>
+            <br>
+            <h3>How long can you go before hearing the chime?</h3>
+            <br>
+            <div class="circle w-32 h-32 mb-4"/></div>
+            <!--Input goal-->
+            <input type="text" id="goalInput" placeholder="What are you doing?" class="input-goal" class="input-goal border rounded-lg p-2 w-full mb-4" />
+            <h4 class="text-grey-200">How much time do you have?</h4>
+            <!--Select timer-->
+            <div class="flex mt-4 items-center control-buttons">
+                <button class="bg-gray-200 text-gray-700 py-2 px-4 rounded-lg" id="decreaseTime">-</button>
+                <span id="timeAdjust" class="timer-display mx-4">02:00</span>
+                <button class="bg-gray-200 text-gray-700 py-2 px-4 rounded-lg" id="increaseTime">+</button>
+            </div>
+            <br>
+            <!--Start Session-->
+            <button class="bg-green-500 text-white py-2 px-4 rounded-lg mb-4" id="startFocusButton">Start Focus Session</button>
+        </div>
+
+        <div id="focusScreen" class="screen bg-white shadow-md rounded-lg p-6">
+            <h2 id="goalDisplay" class="text-xl font-medium mb-4"></h2>
+            <div class="mb-4" style="pointer-events: none;">You have to do this and get things done</div>
+            <div class="timer-display text-3xl font-bold mb-4" id="timer">02:00</div>
+            <button class="bg-red-500 text-white py-2 px-4 rounded-lg mt-4" id="stopSessionButton">Stop Session</button>
+            <div id="focusIndicator" class="focus text-lg font-medium mt-4"></div>
+            <div id="chimeInterval" class="h2 text-lg mt-4">Time since last distraction: N/A</div>
+        </div>
+
+        <div id="resultScreen" class="screen bg-white shadow-md rounded-lg p-6">
+            <h2 class="text-2xl font-semibold mb-4">Session results</h2>
+            <p id="resultText" class="mb-4"></p>
+            <canvas id="focusAwayChart" width="400" height="200" class="mb-4"></canvas>
+            <button class="bg-red-500 text-white py-2 px-4 rounded-lg" id="resetSessionButton">Reset</button>
+        </div>
+    </div>
+
+    <script defer src="app.js"></script>
+    <script defer src="https://webgazer.cs.brown.edu/webgazer.js"></script>
+</body>
+</html>
