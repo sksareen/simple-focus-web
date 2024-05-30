@@ -10,29 +10,37 @@
 </head>
 <body class="bg-gray-100 text-gray-900">
     <div class="container mx-auto p-10 flex flex-col items-center justify-center">
-        <div id="startScreen" class="screen active bg-white shadow-md rounded-lg p-6">
-            <h1 class="text-3xl font-bold">Track Your Focus in Real Time</h1>
-            <br>
-            <h3>How long can you go before hearing the chime?</h3>
-            <br>
+        <div id="startScreen" class="screen active bg-white shadow-md rounded-lg p-4">
+            <h1 class="text-3xl font-bold p-4">Focus Challenge!</h1>
+            
             <div class="circle w-32 h-32 mb-4"/></div>
+            <h2 class="text-xl p-2">Score 80 or higher to win $10</h2>
             <!--Input goal-->
-            <input type="text" id="goalInput" placeholder="What are you doing?" class="input-goal" class="input-goal border rounded-lg p-2 w-full mb-4" />
-            <h4 class="text-grey-200">How much time do you have?</h4>
+            <input type="text" id="goalInput" placeholder="What at you focusing on?" class="input-goal" class="input-goal border rounded-lg p-2 w-full mb-4" />
+            <h4 class="text-grey-200 pt-4 pb-0">Set Timer</h4>
             <!--Select timer-->
-            <div class="flex mt-4 items-center control-buttons">
+            <div class="flex mt-4 items-center control-buttons ">
                 <button class="bg-gray-200 text-gray-700 py-2 px-4 rounded-lg" id="decreaseTime">-</button>
-                <span id="timeAdjust" class="timer-display mx-4">02:00</span>
+                <span id="timeAdjust" class="timer-display mx-4 bg">02:00</span>
                 <button class="bg-gray-200 text-gray-700 py-2 px-4 rounded-lg" id="increaseTime">+</button>
             </div>
+            <!--Option to switch between Timer and Stopwatch-->
+            <div class="flex items-center mt-4">
+                <label class="inline-flex items-center cursor-pointer">
+                  <input type="checkbox" value="" class="sr-only peer" id="useStopwatch">
+                  <div class="relative w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
+                </label>
+            </div>
+            <span class="ms-3 text-sm font-medium text-gray-900 dark:text-gray-600 pt-2 pb-8">Use Stopwatch</span>
             <br>
+            
             <!--Start Session-->
-            <button class="bg-green-500 text-white py-2 px-4 rounded-lg mb-4" id="startFocusButton">Start Focus Session</button>
+            <button class="bg-green-500 text-white py-2 px-4 rounded-lg mb-4 font-bold" id="startFocusButton">Start!</button>
         </div>
 
         <div id="focusScreen" class="screen bg-white shadow-md rounded-lg p-6">
             <h2 id="goalDisplay" class="text-xl font-medium mb-4"></h2>
-            <div class="mb-4" style="pointer-events: none;">You have to do this and get things done</div>
+            <div class="mb-4" style="pointer-events: none;">Just keep your focus on the screen to increase your score</div>
             <div class="timer-display text-3xl font-bold mb-4" id="timer">02:00</div>
             <button class="bg-red-500 text-white py-2 px-4 rounded-lg mt-4" id="stopSessionButton">Stop Session</button>
             <div id="focusIndicator" class="focus text-lg font-medium mt-4"></div>
@@ -49,5 +57,7 @@
 
     <script defer src="app.js"></script>
     <script defer src="https://webgazer.cs.brown.edu/webgazer.js"></script>
+
+
 </body>
 </html>

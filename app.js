@@ -12,6 +12,8 @@ document.addEventListener("DOMContentLoaded", function () {
     let stateChangeBuffer = 1000; // 1 second buffer to make it more responsive
     let sessionActive = false;
     let csvGenerated = false; // To ensure only one CSV is generated
+    let useStopwatch = false; // Added flag to use stopwatch
+
 
     // Load the chime sound
     const chime = new Audio('chime.mp3'); // Update this path
@@ -42,9 +44,15 @@ document.addEventListener("DOMContentLoaded", function () {
         awayData = [];
         sessionActive = true;
         csvGenerated = false; // Reset CSV generation flag
+        useStopwatch = document.getElementById("useStopwatch").checked; // Check if using stopwatch
 
-        interval = setInterval(updateTimer, 1000);
-        updateTimer();
+        if (useStopwatch) {
+            interval = setInterval(updateStopwatch, 1000);
+        } else {
+            interval = setInterval(updateTimer, 1000);
+            updateTimer();
+        }
+
 
         timerInterval = setInterval(() => {
             const timestamp = new Date().toISOString();
@@ -64,6 +72,12 @@ document.addEventListener("DOMContentLoaded", function () {
             stopSession();
         }
     }
+
+    function updateStopwatch() {
+        document.getElementById("timer").textContent = new Date(secondsElapsed * 1000).toISOString().substr(14, 5);
+        secondsElapsed++;
+    }
+
 
     function stopSession() {
         clearInterval(interval);
@@ -154,6 +168,7 @@ document.addEventListener("DOMContentLoaded", function () {
     document.getElementById("stopSessionButton").addEventListener("click", stopSession);
     document.getElementById("resetSessionButton").addEventListener("click", resetSession);
 
+/*
     // Calibrate WebGazer for increased accuracy
     function startCalibration() {
         const calibrationPoints = 9; // Number of calibration points
@@ -212,6 +227,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
         nextCalibrationPoint();
     }
+*/
 
     webgazer.setGazeListener(function (data, elapsedTime) {
         if (data == null || !sessionActive) {
@@ -221,8 +237,8 @@ document.addEventListener("DOMContentLoaded", function () {
         const y = data.y;
         const screenWidth = window.innerWidth;
         const screenHeight = window.innerHeight;
-        const thresholdX = 0.3; // Adjust the horizontal threshold to 30%
-        const thresholdY = 0.3; // Adjust the vertical threshold to 30%
+        const thresholdX = 0.2; // Adjust the horizontal threshold to 25%
+        const thresholdY = 0.2; // Adjust the vertical threshold to 25%
 
         const focusIndicator = document.getElementById("focusIndicator");
         const chimeIntervalDisplay = document.getElementById("chimeInterval");
@@ -245,12 +261,17 @@ document.addEventListener("DOMContentLoaded", function () {
             lastStateChange = now;
             if (currentState === "away") {
                 const timeSinceLastChime = ((now - lastChimeTime) / 1000).toFixed(1);
-                chimeIntervalDisplay.textContent = `Time since last distraction: ${timeSinceLastChime} seconds`;
+                chimeIntervalDisplay.textContent = `You lasted: ${timeSinceLastChime} seconds in focus`;
                 chime.play(); // Play chime sound
                 lastChimeTime = now;
                 focusIndicator.textContent = "You're NOT in Focus";
+                
+                focusIndicator.classList.add("away");
+                focusIndicator.classList.remove("focus");
             } else {
                 focusIndicator.textContent = "You are in Focus";
+                focusIndicator.classList.add("focus");
+                focusIndicator.classList.remove("away");
             }
         }
 
@@ -261,13 +282,27 @@ document.addEventListener("DOMContentLoaded", function () {
         }
     }).begin();
 
-    webgazer.showVideoPreview(true)
-        .showPredictionPoints(true)
-        .applyKalmanFilter(true);
+    
+    webgazer.showVideoPreview(true)  // Show video preview
+            .showPredictionPoints(true) // Show prediction points (gaze dots)
+            .applyKalmanFilter(true);   // Apply Kalman filter to smoothen gaze prediction
 
-    // Remove the WebGazer comment box if it exists
-    const webgazerCommentBox = document.getElementById('webgazerCommentBox');
-    if (webgazerCommentBox) {
-        webgazerCommentBox.style.display = 'none';
+    // Adjust video container size
+    webgazer.setVideoViewerSize(320, 240); // Adjust these values as needed
+
+    // Function to handle resizing
+    function resizeVideoContainer() {
+        var videoContainer = document.getElementById('webgazerVideoContainer');
+        var overlay = document.getElementById('webgazerFaceOverlay');
+        var width = 320; // Set your desired width
+        var height = 240; // Set your desired height
+
+        videoContainer.style.width = width + 'px';
+        videoContainer.style.height = height + 'px';
+        overlay.style.width = width + 'px';
+        overlay.style.height = height + 'px';
     }
+
+    resizeVideoContainer();
+
 });

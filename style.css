@@ -1,10 +1,11 @@
 body {
-    font-family: 'Airbnb Cereal App', sans-serif;
+    font-family: 'Tahoma', sans-serif;
 }
 
 h1 {
     font-size: 35em;
     font-weight: bold;
+    font-family: 'Tahoma', sans-serif;
 }
 
 .container {
@@ -37,13 +38,6 @@ h1 {
     color: red;
 }
 
-#webgazerVideoFeed {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    z-index: 1000;
-}
 
 #chimeInterval {
     font-size: 1.2em;
@@ -64,5 +58,5 @@ h1 {
 }
 
 .away {
-  background-color: red; /* Green background */
+  background-color: red; /* Red background */
 }
