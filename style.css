@@ -1,11 +1,20 @@
 body {
-    font-family: 'Tahoma', sans-serif;
+    font-family: 'Poppins', sans-serif;
+    font-size: 24px;
+    font-color: black;
+    background-color: #dffeff;
 }
 
 h1 {
-    font-size: 35em;
-    font-weight: bold;
-    font-family: 'Tahoma', sans-serif;
+    font-family: 'Poppins', sans-serif;
+    color: black;
+}
+
+h2 {
+    color: black;
+    font-size: 1.5em;
+    padding: 1em;
+    font-family: 'Poppins', sans-serif;
 }
 
 .container {
@@ -14,7 +23,16 @@ h1 {
 
 .screen {
     display: none;
-    max-width: 400px;
+    max-width: 600px;
+    min-height: 800px;
+    background-color: #FFFDF7;
+    opacity: 0.85;
+    border-radius: 5%;
+    padding: 20px;
+}
+
+.input-goal {
+    font-size: .8em;
 }
 
 .screen.active {
@@ -24,33 +42,24 @@ h1 {
 }
 
 .timer-display {
-    font-size: 2em;
-    font-weight: bold;
-    color: #505050;
+    font-size: 1.5em;
+    font-weight: 900;
+    color: black;
     text-align: center;
-}
-
-.focus {
-    color: green;
-}
-
-.away {
-    color: red;
-}
-
-
-#chimeInterval {
-    font-size: 1.2em;
-    color: blue;
 }
 
 #focusIndicator {
   color: white; /* White text */
   border: none; /* No border */
   padding: 10px 20px; /* Padding */
-  border-radius: 8px; /* Rounded corners */
+  border-radius: 2px; /* Rounded corners */
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Shadow */
   font-size: 20px; /* Font size */
+  min-width: 200px;
+}
+
+#resultText {
+    font-size: .9em;
 }
 
 .focus {
@@ -59,4 +68,47 @@ h1 {
 
 .away {
   background-color: red; /* Red background */
+}
+
+#controls {
+    margin: 20px;
+}
+
+#controls button,
+#controls select {
+    margin: 10px;
+    padding: 10px;
+    font-size: 16px;
+}
+
+/* New styles for the coordinate table */
+#coordinateTable {
+    width: 100%;
+    table-layout: fixed; /* Ensure equal width columns */
+    height: 300px; /* Set a fixed height */
+}
+thead {
+    display: table; /* Keep the header fixed */
+    width: calc(100% - 17px); /* Adjust for scrollbar width */
+}
+tbody {
+    display: block; /* Make tbody scrollable */
+    overflow-y: auto; /* Enable vertical scrolling */
+    height: 200px; /* Adjust the height as needed */
+    width: 100%;
+}
+
+th, td {
+    text-align: center;
+    width: 15em; /* Ensure equal width columns */
+    box-sizing: border-box; /* Include padding and border in the element's total width and height */
+    font-weight: 300;
+}
+
+th {
+    font-style: italic;
+}
+
+td {
+    font-size: 12px;
 }
