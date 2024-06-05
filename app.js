@@ -78,7 +78,7 @@ document.addEventListener("DOMContentLoaded", function () {
         document.getElementById("resultScreen").classList.add("active");
         document.getElementById("resultScreen").style.display = "flex";
         
-        document.getElementById("resultText").textContent = `Total time: ${new Date(secondsElapsed * 1000).toISOString().substr(14, 5)} <br> Time in focus: ${new Date(focusTime * 1000).toISOString().substr(14, 5)} <br> Time away: ${new Date(awayTime * 1000).toISOString().substr(14, 5)} <br> Number of distractions: ${distractionCount}`;
+        document.getElementById("resultText").innerHTML = `Total time: ${new Date(secondsElapsed * 1000).toISOString().substr(14, 5)} <br> Focused Time: ${new Date(focusTime * 1000).toISOString().substr(14, 5)} <br> Distracted Time: ${new Date(awayTime * 1000).toISOString().substr(14, 5)} <br> Number of distractions: ${distractionCount}`;
         /*
         if (!csvGenerated) {
             downloadCSV();
@@ -251,6 +251,7 @@ document.addEventListener("DOMContentLoaded", function () {
             currentState = newState;
             lastStateChange = now;
             if (currentState === "away") {
+                distractionCount++; // Increment the distraction counter
                 const timeSinceLastChime = ((now - lastChimeTime) / 1000).toFixed();
                 chimeIntervalDisplay.textContent = `You Lasted: ${timeSinceLastChime} seconds`;
                 chime.play(); // Play chime sound
