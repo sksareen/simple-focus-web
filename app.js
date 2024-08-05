@@ -1,273 +1,190 @@
 document.addEventListener("DOMContentLoaded", function () {
-    let totalSeconds = 120;
-    let interval;
+    let totalSeconds = 300; // 5 minutes default
     let timerInterval;
-    let secondsElapsed = 0;
-    let focusTime = 0;
-    let awayTime = 0;
-    let focusData = [];
-    let awayData = [];
-    let lastStateChange = Date.now();
-    let currentState = "focus";
-    let stateChangeBuffer = 1000; // 1 second buffer to make it more responsive
-    let sessionActive = false;
-    let csvGenerated = false; // To ensure only one CSV is generated
+    let isTracking = false;
+    let lastDistractionTime = null;
+    let distractionThreshold = 0.3;
+    let lastTime = null;
+    let isCalibrated = false;
+    
+    const timeDisplay = document.getElementById("timeDisplay");
+    const startButton = document.getElementById("startButton");
+    const resetButton = document.getElementById("resetButton");
+    const calibrateButton = document.getElementById("calibrateButton");
+    const toggleVideoCheckbox = document.getElementById("toggleVideoCheckbox");
+    const toggleVideoLabel = document.getElementById("toggleVideoLabel");
+    const focusIndicator = document.getElementById("focusIndicator");
+    const lastDistraction = document.getElementById("lastDistraction");
+    const calibrationArea = document.getElementById("calibrationArea");
+    const calibrationDot = document.getElementById("calibrationDot");
+    const chimeSound = document.getElementById("chimeSound");
+    const thresholdSlider = document.getElementById("distractionThreshold");
+    const thresholdValue = document.getElementById("thresholdValue");
+    
+    const toggleAdvancedSettingsButton = document.getElementById("toggleAdvancedSettings");
+    const advancedSettingsContainer = document.getElementById("advancedSettingsContainer");
 
-    // Load the chime sound
-    const chime = new Audio('chime.mp3'); // Update this path
-
-    // Setup to track the interval time between chimes
-    let lastChimeTime = Date.now();
-
-    // Take in the input from the timer adjuster to add to the totalSeconds time
-    function adjustTime(seconds) {
-        totalSeconds += seconds;
-        if (totalSeconds < 0) totalSeconds = 0;
-        document.getElementById("timeAdjust").textContent = new Date(totalSeconds * 1000).toISOString().substr(14, 5);
-        document.getElementById("timer").textContent = new Date(totalSeconds * 1000).toISOString().substr(14, 5);
+    function toggleAdvancedSettings() {
+        toggleAdvancedSettingsButton.classList.toggle("active");
+        advancedSettingsContainer.classList.toggle("visible");
     }
 
-    function startFocus() {
-        const goalText = document.getElementById("goalInput").value;
-        document.getElementById("goalDisplay").textContent = goalText;
-        document.getElementById("startScreen").classList.remove("active");
-        document.getElementById("startScreen").style.display = "none";
-        document.getElementById("focusScreen").classList.add("active");
-        document.getElementById("focusScreen").style.display = "flex";
+    toggleAdvancedSettingsButton.addEventListener("click", toggleAdvancedSettings);
 
-        secondsElapsed = 0;
-        focusTime = 0;
-        awayTime = 0;
-        focusData = [];
-        awayData = [];
-        sessionActive = true;
-        csvGenerated = false; // Reset CSV generation flag
+    function updateTimeDisplay() {
+        const minutes = Math.floor(totalSeconds / 60);
+        const seconds = totalSeconds % 60;
+        const timeString = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+        timeDisplay.textContent = timeString;
+    }
 
-        interval = setInterval(updateTimer, 1000);
-        updateTimer();
+    function adjustTime(seconds) {
+        totalSeconds += seconds;
+        if (totalSeconds < 60) totalSeconds = 60; // Minimum 1 minute
+        if (totalSeconds > 3600) totalSeconds = 3600; // Maximum 1 hour
+        updateTimeDisplay();
+    }
 
-        timerInterval = setInterval(() => {
-            const timestamp = new Date().toISOString();
-            if (currentState === "focus") {
-                focusData.push({ time: focusTime, timestamp });
+    function startTracking() {
+        lastTime = totalSeconds;
+        if (!isTracking) {
+            if (!isCalibrated) {
+                startCalibration(() => {
+                    isCalibrated = true;
+                    startTrackingTimer();
+                });
             } else {
-                awayData.push({ time: awayTime, timestamp });
+                startTrackingTimer();
+            }
+        } else {
+            stopTracking();
+        }
+    }
+
+    function startTrackingTimer() {
+        isTracking = true;
+        startButton.textContent = "Stop";
+        timerInterval = setInterval(() => {
+            totalSeconds--;
+            updateTimeDisplay();
+            if (totalSeconds <= 0) {
+                stopTracking();
             }
         }, 1000);
     }
 
-    function updateTimer() {
-        const currentTime = totalSeconds - secondsElapsed;
-        document.getElementById("timer").textContent = new Date(currentTime * 1000).toISOString().substr(14, 5);
-        secondsElapsed++;
-        if (currentTime <= 0) {
-            stopSession();
-        }
-    }
-
-    function stopSession() {
-        clearInterval(interval);
+    function stopTracking() {
+        isTracking = false;
+        startButton.textContent = "Start";
         clearInterval(timerInterval);
-        sessionActive = false;
-        document.getElementById("focusScreen").classList.remove("active");
-        document.getElementById("focusScreen").style.display = "none";
-        document.getElementById("resultScreen").classList.add("active");
-        document.getElementById("resultScreen").style.display = "flex";
-        document.getElementById("resultText").textContent = `Total time: ${new Date(secondsElapsed * 1000).toISOString().substr(14, 5)}\nTime in focus: ${new Date(focusTime * 1000).toISOString().substr(14, 5)}\nTime away: ${new Date(awayTime * 1000).toISOString().substr(14, 5)}`;
-        if (!csvGenerated) {
-            downloadCSV();
-            csvGenerated = true;
-        }
-        drawGraph();
     }
 
-    function resetSession() {
-        document.getElementById("resultScreen").classList.remove("active");
-        document.getElementById("resultScreen").style.display = "none";
-        document.getElementById("startScreen").classList.add("active");
-        document.getElementById("startScreen").style.display = "flex";
-        document.getElementById("timer").textContent = new Date(totalSeconds * 1000).toISOString().substr(14, 5);
-        totalSeconds = 120;
-        document.getElementById("timeAdjust").textContent = "02:00";
+    function resetTimer() {
+        stopTracking();
+        totalSeconds = lastTime;
+        updateTimeDisplay();
     }
 
-    function downloadCSV() {
-        const data = [["State", "Time (s)", "Timestamp"]];
-        focusData.forEach(entry => data.push(["Focus", entry.time, entry.timestamp]));
-        awayData.forEach(entry => data.push(["Away", entry.time, entry.timestamp]));
-
-        let csvContent = "data:text/csv;charset=utf-8," 
-            + data.map(e => e.join(",")).join("\n");
-
-        const encodedUri = encodeURI(csvContent);
-        const link = document.createElement("a");
-        link.setAttribute("href", encodedUri);
-        link.setAttribute("download", "focus_away_data.csv");
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-    }
-
-    function drawGraph() {
-        const ctx = document.getElementById('focusAwayChart').getContext('2d');
-        const labels = focusData.concat(awayData).map(entry => entry.timestamp);
-        labels.sort();
-
-        const focusTimeData = focusData.map(entry => ({ x: entry.timestamp, y: entry.time }));
-        const awayTimeData = awayData.map(entry => ({ x: entry.timestamp, y: entry.time }));
-
-        new Chart(ctx, {
-            type: 'line',
-            data: {
-                labels: labels,
-                datasets: [
-                    {
-                        label: 'Focus Time',
-                        data: focusTimeData,
-                        borderColor: 'green',
-                        fill: false
-                    },
-                    {
-                        label: 'Away Time',
-                        data: awayTimeData,
-                        borderColor: 'red',
-                        fill: false
-                    }
-                ]
-            },
-            options: {
-                scales: {
-                    x: {
-                        type: 'time',
-                        time: {
-                            unit: 'second'
-                        }
-                    }
-                }
+    function toggleVideo() {
+        const videoPreview = document.getElementById("webgazerVideoFeed");
+        const faceOverlay = document.getElementById("webgazerFaceOverlay");
+        const faceFeedbackBox = document.getElementById("webgazerFaceFeedbackBox");
+        
+        const isVisible = toggleVideoCheckbox.checked;
+        
+        [videoPreview, faceOverlay, faceFeedbackBox].forEach(element => {
+            if (element) {
+                element.style.display = isVisible ? "block" : "none";
             }
         });
+
+        toggleVideoLabel.textContent = isVisible ? "Video Visible" : "Video Hidden";
     }
 
-    document.getElementById("startFocusButton").addEventListener("click", startFocus);
-    document.getElementById("decreaseTime").addEventListener("click", () => adjustTime(-120));
-    document.getElementById("increaseTime").addEventListener("click", () => adjustTime(120));
-    document.getElementById("stopSessionButton").addEventListener("click", stopSession);
-    document.getElementById("resetSessionButton").addEventListener("click", resetSession);
+    function startCalibration(callback) {
+        calibrationArea.style.display = "flex";
+        const calibrationPoints = [
+            { x: "10%", y: "10%" }, { x: "50%", y: "10%" }, { x: "90%", y: "10%" },
+            { x: "10%", y: "50%" }, { x: "50%", y: "50%" }, { x: "90%", y: "50%" },
+            { x: "10%", y: "90%" }, { x: "50%", y: "90%" }, { x: "90%", y: "90%" }
+        ];
+        let currentPoint = 0;
 
-    // Calibrate WebGazer for increased accuracy
-    function startCalibration() {
-        const calibrationPoints = 9; // Number of calibration points
-        const calibrationDelay = 1000; // Delay between calibration points in ms
-
-        const calibrationContainer = document.createElement('div');
-        calibrationContainer.style.position = 'absolute';
-        calibrationContainer.style.top = '0';
-        calibrationContainer.style.left = '0';
-        calibrationContainer.style.width = '100%';
-        calibrationContainer.style.height = '100%';
-        calibrationContainer.style.display = 'flex';
-        calibrationContainer.style.alignItems = 'center';
-        calibrationContainer.style.justifyContent = 'center';
-        calibrationContainer.style.zIndex = '1000';
-        document.body.appendChild(calibrationContainer);
-
-        let calibrationIndex = 0;
-
-        function nextCalibrationPoint() {
-            if (calibrationIndex < calibrationPoints) {
-                const point = document.createElement('div');
-                point.style.width = '10px';
-                point.style.height = '10px';
-                point.style.backgroundColor = 'red';
-                point.style.position = 'absolute';
-                point.style.borderRadius = '50%';
-
-                const positions = [
-                    { top: '10%', left: '10%' },
-                    { top: '10%', left: '50%' },
-                    { top: '10%', left: '90%' },
-                    { top: '50%', left: '10%' },
-                    { top: '50%', left: '50%' },
-                    { top: '50%', left: '90%' },
-                    { top: '90%', left: '10%' },
-                    { top: '90%', left: '50%' },
-                    { top: '90%', left: '90%' }
-                ];
-
-                point.style.top = positions[calibrationIndex].top;
-                point.style.left = positions[calibrationIndex].left;
-
-                calibrationContainer.innerHTML = '';
-                calibrationContainer.appendChild(point);
-
-                webgazer.addCalibrationPoint(point);
-
-                calibrationIndex++;
-                setTimeout(nextCalibrationPoint, calibrationDelay);
+        function showNextPoint() {
+            if (currentPoint < calibrationPoints.length) {
+                calibrationDot.style.left = calibrationPoints[currentPoint].x;
+                calibrationDot.style.top = calibrationPoints[currentPoint].y;
+                currentPoint++;
+                
+                setTimeout(showNextPoint, 2000); // Move to next point after 2 seconds
             } else {
-                calibrationContainer.remove();
-                webgazer.pause().then(() => webgazer.resume()); // Reinitialize after calibration
+                endCalibration(callback);
             }
         }
 
-        nextCalibrationPoint();
+        showNextPoint();
     }
 
-    webgazer.setGazeListener(function (data, elapsedTime) {
-        if (data == null || !sessionActive) {
-            return;
-        }
-        const x = data.x;
-        const y = data.y;
+    function endCalibration(callback) {
+        calibrationArea.style.display = "none";
+        webgazer.setGazeListener(gazeListener);
+        if (callback) callback();
+    }
+
+    function gazeListener(data, elapsedTime) {
+        if (data == null || !isTracking) return;
+
         const screenWidth = window.innerWidth;
         const screenHeight = window.innerHeight;
-        const thresholdX = 0.3; // Adjust the horizontal threshold to 30%
-        const thresholdY = 0.3; // Adjust the vertical threshold to 30%
-
-        const focusIndicator = document.getElementById("focusIndicator");
-        const chimeIntervalDisplay = document.getElementById("chimeInterval");
-        let newState = currentState;
 
         if (
-            x < screenWidth * thresholdX ||
-            x > screenWidth * (1 - thresholdX) ||
-            y < screenHeight * thresholdY ||
-            y > screenHeight * (1 - thresholdY)
+            data.x < screenWidth * distractionThreshold ||
+            data.x > screenWidth * (1 - distractionThreshold) ||
+            data.y < screenHeight * distractionThreshold ||
+            data.y > screenHeight * (1 - distractionThreshold)
         ) {
-            newState = "away";
+            focusIndicator.textContent = "Distracted";
+            focusIndicator.className = "distracted";
+            if (!lastDistractionTime) {
+                lastDistractionTime = new Date();
+                lastDistraction.textContent = "Last Distraction: Just now";
+                chimeSound.play();
+            }
         } else {
-            newState = "focus";
-        }
-
-        const now = Date.now();
-        if (newState !== currentState && now - lastStateChange >= stateChangeBuffer) {
-            currentState = newState;
-            lastStateChange = now;
-            if (currentState === "away") {
-                const timeSinceLastChime = ((now - lastChimeTime) / 1000).toFixed(1);
-                chimeIntervalDisplay.textContent = `Time since last distraction: ${timeSinceLastChime} seconds`;
-                chime.play(); // Play chime sound
-                lastChimeTime = now;
-                focusIndicator.textContent = "You're NOT in Focus";
-            } else {
-                focusIndicator.textContent = "You are in Focus";
+            focusIndicator.textContent = "Focused";
+            focusIndicator.className = "focused";
+            if (lastDistractionTime) {
+                const now = new Date();
+                const timeSinceDistraction = Math.round((now - lastDistractionTime) / 1000);
+                lastDistraction.textContent = `Last Distraction: ${timeSinceDistraction} seconds ago`;
+                lastDistractionTime = null;
             }
         }
-
-        if (currentState === "focus") {
-            focusTime++;
-        } else {
-            awayTime++;
-        }
-    }).begin();
-
-    webgazer.showVideoPreview(true)
-        .showPredictionPoints(true)
-        .applyKalmanFilter(true);
-
-    // Remove the WebGazer comment box if it exists
-    const webgazerCommentBox = document.getElementById('webgazerCommentBox');
-    if (webgazerCommentBox) {
-        webgazerCommentBox.style.display = 'none';
     }
+
+    document.getElementById("decreaseTime").addEventListener("click", () => adjustTime(-60));
+    document.getElementById("increaseTime").addEventListener("click", () => adjustTime(60));
+    startButton.addEventListener("click", startTracking);
+    resetButton.addEventListener("click", resetTimer);
+    calibrateButton.addEventListener("click", () => startCalibration(() => { isCalibrated = true; }));
+    toggleVideoCheckbox.addEventListener("change", toggleVideo);
+    document.getElementById("exitCalibration").addEventListener("click", () => endCalibration(() => { isCalibrated = true; }));
+
+    thresholdSlider.addEventListener("input", function() {
+        distractionThreshold = this.value / 100;
+        thresholdValue.textContent = this.value;
+    });
+
+    // Initialize WebGazer
+    webgazer.setGazeListener(() => {}).begin();
+    webgazer.showVideoPreview(true).showPredictionPoints(true).applyKalmanFilter(true);
+
+    // Set initial states
+    updateTimeDisplay();
+    toggleVideoCheckbox.checked = true;
+    toggleVideo(); // Set initial video state
+    thresholdValue.textContent = thresholdSlider.value;
+
+    // Show advanced settings by default
+    toggleAdvancedSettings();
 });
