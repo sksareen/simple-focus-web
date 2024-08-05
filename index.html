@@ -3,139 +3,66 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Focus Tracker</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script defer src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <title>GetFocus Reminder</title>
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@300;400;600;700&family=Poppins:wght@500;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
-    <link href='https://fonts.googleapis.com/css?family=Poppins' rel='stylesheet'>
-    <link rel="icon" type="image/png" href="icon.png">
-
-    <!-- WebGazer.js library -->
 </head>
+<body>
+    <div id="app" class="container">
+        <div class="titles">
+            <h1>GetFocus Reminder</h1>
+            <h4>Train yourself to focus with real time alerts</h4>
+        </div>
 
-<!-- The whole BODY -->
-<body class="text-gray-900 flex items-center justify-center min-h-screen">
-
-    <!-- The main container with the screens -->
-    <div id ="fullscreen" class="container mx-auto p-10 w-full flex flex-col items-center justify-center">
-
-        <!-- The home/start screen -->
-        <div id="startScreen" class="screen active shadow-md p-4">
-            <!-- Hero title -->            
-            <br>
-            <h1 class="text-4xl font-black p-4">Real Time Focus Trainer</h1>
-            <img src="logo.png" style="width: 130px;height: 130px;">
-            <br>
- 
-            <!-- Input goal-->
-            <input type="text" id="goalInput" placeholder="What do you need to do?" class="input-goal border rounded-lg p-3 w-full mb-4" />
-            <!-- Select Timer or Stopwatch-->
-            <div class="w-full flex flex-col items-center">
-                <p class="text-black pt-4">Choose Mode:</p>
-                <!-- Select Timer or Stopwatch-->
-                <div class="flex items-center justify-center space-x-3 pt-2 pb-0">
-                    <span class="text-sm">Timer</span>
-                    <div class="select flex items-center">
-                        <label class="inline-flex items-center cursor-pointer">
-                            <input type="checkbox" value="" class="sr-only peer" id="useStopwatch">
-                            <div class="relative w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
-                        </label>
-                    </div>
-                    <span class="text-sm text-black">Stopwatch</span>
-                </div>
-                <br>
+        <div class="timer-section">
+            <h3>Set Time</h3>
+            <div id="timerControls">
+                <button id="decreaseTime">-</button>
+                <span id="timeDisplay">05:00</span>
+                <button id="increaseTime">+</button>
             </div>
+            <button id="resetButton">Reset Time</button>
+        </div>
 
-            <!--Timer control buttons, hidden in stopwatch mode-->            
-            <p class="text-black" id="timeLabel">Set Duration</p>
-            <div class="flex mt-4 items-center control-buttons" id="timeControls">
-                <button class="bg-gray-200 py-2 px-4 rounded-lg" id="decreaseTime">-</button>
-                <span id="timeAdjust" class="timer-display mx-4 bg">06:00</span>
-                <button class="bg-gray-200 py-2 px-4 rounded-lg" id="increaseTime">+</button>
-            </div>
+        <div id="startContainer">
+            <button id="startButton" class="main-button">Start</button>
+            <button id="toggleAdvancedSettings">Show/Hide Settings</button>
+            <label for="toggleAdvancedSettings">First session will start calibration. To recalibrate open Settings</label>
+        </div>
 
-            <!--Hide timer in stopwatch mode -->
-            <script>
-                document.getElementById('useStopwatch').addEventListener('change', function() {
-                    const timeControls = document.getElementById('timeControls');
-                    const timeLabel = document.getElementById('timeLabel');
-                    if (this.checked) {
-                        timeControls.classList.add('hidden');
-                        timeLabel.classList.add('hidden')
-                    } else {
-                        timeControls.classList.remove('hidden');
-                        timeLabel.classList.remove('hidden');
-                    }
-                });
-            </script>
+        <div id="advancedSettingsContainer" class="visible">
+            <h3>Settings</h3>
+            <div class="control-section">
+                <button id="calibrateButton">Calibrate</button>
 
-            <br>
-
-            <!-- Sesion Control buttons-->
-            <button class="bg-green-500 text-white py-2 px-4 rounded-lg mb-4 font-bold" id="startFocusButton">Start</button>
-
-            <button class="bg-gray-400 text-white py-2 px-4 rounded-lg mb-4 text-sm" id="calibrateButton" alt="Calibrate Eye Trackign">Calibrate</button>
-
-            <div id="calibration" style="display: none;">
-                <div id="calibration-instructions" class="justify-center items-center flex">
-                    <p>Please follow the dots on the screen to calibrate the eye tracker.</p>
+                <div class="toggle-container">
+                    <label class="switch">
+                        <input type="checkbox" id="toggleVideoCheckbox">
+                        <span class="slider round"></span>
+                    </label>
+                    <span id="toggleVideoLabel">Loading Video Preview</span>
                 </div>
-                <div id="calibration-dot" class ="cursor-pointer" style="width: 15px; height: 15px; background-color: magenta; border-radius: 50%; position: absolute; border-color: green; border-width: 4px; ">
+
+                <div id="thresholdControl">
+                    <label for="distractionThreshold">Eye Tracking Sensitivity: <span id="thresholdValue">30</span>%</label>
+                    <input type="range" id="distractionThreshold" min="10" max="50" value="30">
                 </div>
             </div>
         </div>
 
-        <!-- The in-session screen -->
-        <div id="focusScreen" class="screen shadow-md p-6">
-            <h2 id="goalDisplay" class="text-xl font-medium mb-4"></h2>
-            <div class="mb-4 text-xl font-bold" style="pointer-events: none;">A chime will play if you look away</div>
-            <p class="text-sm italic pb-4">Please wait for the red dot to appear on the screenFor accurate tracking avoid wearing glasses, and keep your face well lit.</p>
-            <br>
-            <p class="mb-4">Time Remaining: </p>
-            <div class="timer-display text-3xl font-bold mb-4" id="timer">00:00</div>
-            <button class="bg-red-500 text-white py-2 px-4 rounded-lg mt-4" id="stopSessionButton">Stop Session</button>
-            <div id="focusIndicator" class="focus text-lg font-medium mt-4"></div>
-        <!--
-            <div id="score-display" class="pt-6 h2 text-lg font-medium">Current Score: <span id="live-score">0</span></div>
-        -->
-            <br>
-            <div id="chimeInterval" class="h2 text-lg font-medium">Last Distraction: N/A ago</div>
+        <div id="focusIndicator">Focused</div>
+        <div id="lastDistraction">Last Distraction: N/A</div>
+
+        <div id="calibrationArea" style="display: none;">
+            <p>Follow the green dot with your eyes and mouse to calibrate eye tracking</p>
+            <div id="calibrationDot"></div>
+            <button id="exitCalibration">Exit Calibration</button>
         </div>
-
-        <!-- The results screen -->
-        <div id="resultScreen" class="screen shadow-md p-6">
-            <h1 class="text-3xl font-bold mb-4">Session results</h1>
-            <h2 class="p-2">Final Score: <span id="final-score">0</span></h2>
-            <br>
-            <p id="resultText" class="mb-4"></p>
-            <button class="bg-red-500 text-white py-2 px-4 rounded-lg" id="resetSessionButton">Reset</button>
-        </div>
-
-<!--
-        <div id="coordinateTable" class="bg-white shadow-md rounded-lg p-4 mt-4 w-full hidden">
-            <h3 class="text-l mb-2 text-center font-bold">Focus Tracking Coordinates</h3>
-            <table class="min-w-full bg-white">
-                <thead>
-                    <tr>
-                        <th>Time</th>
-                        <th>Mouse X</th>
-                        <th>Mouse Y</th>
-                        <th>Eye X</th>
-                        <th>Eye Y</th>
-                        <th>Score</th>
-                        <th>State</th>
-                    </tr>
-                </thead>
-                <tbody id="coordinateTableBody">
-                </tbody>
-            </table>
-        </div> Coordinate Table
--->
-
     </div>
-
-    <script defer src="app.js"></script>
-    <script src="https://webgazer.cs.brown.edu/webgazer.js"></script>
     
+    <audio id="chimeSound" src="chime.mp3"></audio>
+    
+    <script src="https://webgazer.cs.brown.edu/webgazer.js"></script>
+    <script src="app.js"></script>
 </body>
 </html>
