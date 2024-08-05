@@ -3,7 +3,7 @@ document.addEventListener("DOMContentLoaded", function () {
     let timerInterval;
     let isTracking = false;
     let lastDistractionTime = null;
-    let distractionThreshold = 0.3;
+    let distractionThreshold = 0.2;
     let lastTime = null;
     let isCalibrated = false;
     
