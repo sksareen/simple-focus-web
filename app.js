@@ -5,7 +5,7 @@ document.addEventListener("DOMContentLoaded", function () {
     let lastDistractionTime = null;
     let distractionThreshold = 0.15;
     let lastTime = 300;
-    let isCalibrated = false;
+    let isCalibrated = true;
     
     const timeDisplay = document.getElementById("timeDisplay");
     const startButton = document.getElementById("startButton");
@@ -46,7 +46,6 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
     function startTracking() {
-        lastTime = totalSeconds;
         if (!isTracking) {
             if (!isCalibrated) {
                 startCalibration(() => {
@@ -62,6 +61,7 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
     function startTrackingTimer() {
+        lastTime = totalSeconds;
         isTracking = true;
         startButton.textContent = "Stop";
         timerInterval = setInterval(() => {
