@@ -5,7 +5,7 @@ document.addEventListener("DOMContentLoaded", function () {
     let lastDistractionTime = null;
     let distractionThreshold = 0.15;
     let lastTime = 300;
-    let isCalibrated = true;
+    let isCalibrated = false;
     
     const timeDisplay = document.getElementById("timeDisplay");
     const startButton = document.getElementById("startButton");
