@@ -3,8 +3,8 @@ document.addEventListener("DOMContentLoaded", function () {
     let timerInterval;
     let isTracking = false;
     let lastDistractionTime = null;
-    let distractionThreshold = 0.2;
-    let lastTime = null;
+    let distractionThreshold = 0.15;
+    let lastTime = 300;
     let isCalibrated = false;
     
     const timeDisplay = document.getElementById("timeDisplay");
@@ -116,7 +116,7 @@ document.addEventListener("DOMContentLoaded", function () {
                 calibrationDot.style.top = calibrationPoints[currentPoint].y;
                 currentPoint++;
                 
-                setTimeout(showNextPoint, 2000); // Move to next point after 2 seconds
+                setTimeout(showNextPoint, 1500); // Move to next point after 2 seconds
             } else {
                 endCalibration(callback);
             }
@@ -173,6 +173,8 @@ document.addEventListener("DOMContentLoaded", function () {
     thresholdSlider.addEventListener("input", function() {
         distractionThreshold = this.value / 100;
         thresholdValue.textContent = this.value;
+        console.log(this.value);
+        console.log(distractionThreshold);
     });
 
     // Initialize WebGazer

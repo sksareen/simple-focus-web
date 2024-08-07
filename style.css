@@ -54,12 +54,12 @@ button {
 }
 
 #startButton {
-    background-color: #2ecc71;
+    background-color: #3498db;
     transition: all 0.3s;
 }
 
 #startButton:hover {
-    background-color: #2980b9;
+    background-color: #2ecc71;
 }
 
 #decreaseTime, #increaseTime {
@@ -141,6 +141,7 @@ button:hover {
 
 
 #focusIndicator {
+    align-items: center;
     font-size: 1.2rem;
     font-weight: bold;
     margin: 1rem 0;

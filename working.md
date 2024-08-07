@@ -86,4 +86,23 @@ Issues:
 - functions as desired
 
 ### What Didn't
-- 
+- if the user has not calibrated since opening the window, the first 'start' should first trigger a calbiration exercise, and then the trakcing should start after teh calibration ends.
+
+---
+
+#### Iteration 6
+### What Worked
+- looks really good
+- functions as desired
+- calibration triggers well
+
+### What Didn't
+- Allow usersd to show/hide the calibrate, video visible, and threshold components. unhide on default
+
+#### Iteration 7
+### What Worked
+- show/hide works
+
+### What Didn't
+- Video hidden toggle is not correctly listed as active by default
+- When teh advanced settings is open no other components should move on the screen. is this because of relative position?
